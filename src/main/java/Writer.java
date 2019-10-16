@@ -4,35 +4,27 @@ import jdk.internal.org.objectweb.asm.Opcodes;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 
 public class Writer {
 
     public Writer(){
-        this.output = new File("output.txt");
+        this.outputFile = new File("/home/vladislav/IdeaProjects/JustALanguage/out/Main.class");
         this.baseWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS | ClassWriter.COMPUTE_FRAMES);
         this.baseVisitor = baseWriter.visitMethod(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+    }
+
+    public MethodVisitor getBaseVisitor() {
+        return baseVisitor;
     }
 
     public void write() throws IOException {
         visitFirst();
         visitLast();
         visitClassInitialization();
-        if (!output.isDirectory()){
-            return;
-        }
-        matchingFile = output.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                return name.equals("Main.class");
-            }
-        });
-        if (null == matchingFile){
-            return;
-        }
-        FileUtils.writeByteArrayToFile(matchingFile[0], baseWriter.toByteArray());
-
+        FileUtils.writeByteArrayToFile(outputFile, baseWriter.toByteArray());
     }
+
 
     private void visitFirst(){
         baseWriter.visit(Opcodes.V1_8, Opcodes.ACC_PUBLIC, "Main", null, "java/lang/Object", null);
@@ -55,7 +47,7 @@ public class Writer {
     }
 
     private File[] matchingFile;
-    private File output;
+    private File outputFile;
     private ClassWriter baseWriter;
     private MethodVisitor baseVisitor;
 }
